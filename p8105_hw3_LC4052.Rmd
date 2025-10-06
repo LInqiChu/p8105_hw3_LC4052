@@ -1,0 +1,35 @@
+---
+title: "p8105_hw3_LC4052"
+output: github_document
+date: "2025-10-06"
+---
+
+```{r}
+library(tidyverse)
+library(ggridges)
+
+```
+
+
+```{r}
+
+library(p8105.datasets)
+data("instacart")
+
+
+
+
+
+
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
