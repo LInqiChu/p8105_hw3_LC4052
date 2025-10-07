@@ -7,29 +7,82 @@ date: "2025-10-06"
 ```{r}
 library(tidyverse)
 library(ggridges)
+library(patchwork)
+library(dplyr)
+```
+
+
+# Problem 1
+
+## Import data
+
+```{r}
+library(p8105.datasets)
+data("instacart")
+
+```
+
+## Description of variables
+
+The dataset includes`r nrow(instacart)` observations and `r ncol(instacart)` variables, including `r names(instacart)`.
+
+There are `r n_distinct(instacart$product_id)` distinct product ids and `r n_distinct(instacart$product_name)` product names. Departments contain `r unique(instacart$department)`.
+
+## Number of aisles
+
+```{r}
+instacart |>
+  count(aisle) |>
+  arrange(desc(n)) |>
+  slice(1) |>
+  pull(aisle)
+
+```
+
+
+
+There are `r n_distinct(instacart$aisle` aisles.
+
+
+, and `r` are the most items ordered from.
+
+## Plot of 
+
+Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.
+
+```{r}
+
+
+
+```
+
+Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
+
+```{r}
+
+```
+
+Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table)
+
+```{r}
+
+```
+
+
+## Problem 2
+
+```{r}
+
+```
+
+
+
+```{r}
 
 ```
 
 
 ```{r}
 
-library(p8105.datasets)
-data("instacart")
-
-
-
-
-
-
-
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
