@@ -61,20 +61,31 @@ instacart |>
 
 ```
 
-Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
+## Table of the three most popular items
 
 ```{r}
 instacart |>
-  group_by(aisle)
-
-
-
-
+  filter(aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")) |>
+  group_by(aisle, product_name) |>
+  summarise(order_count = n()) |>
+  group_by(aisle) |>
+  slice_max(order_count, n = 3) |>
+  arrange(aisle, desc(order_count))
+ 
 ```
 
-Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table)
+## Table of the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; 
+
+format this table for human readers (i.e. produce a 2 x 7 table)
 
 ```{r}
+
+
+
+
+
+
+
 
 ```
 
