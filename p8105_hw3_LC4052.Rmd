@@ -184,22 +184,80 @@ ggplot(zip_freq, aes(x = n_months)) +
 High-frequency ZIP codes might benefit from dense populations that generate continuous rental market activity throughout the data collection period. They may be also due to better technological coverage and more reliable reporting mechanisms.
 
 
-## Table showing the average rental price in each borough and year (not month). Comment on trends in this table.
-
+## Table showing the average rental price in each borough and year
 
 ```{r}
-zip_freq =
+borough_rent =
   combined_data |>
-  mutate(file_date = as.Date(file_date)) |>
-  group_by(zip_code) |>
+  mutate(
+    file_date = as.Date(file_date),
+    year = year(file_date)
+  ) |>
+  group_by(county, year) |>
   summarize(
-    n_months = n_distinct(format(file_date, "%Y-%m")),
-    zip_count = n()
-    avg_rent = mean(rent_price)
+    zip_count = n(),
+    avg_rent = mean(rent_price, na.rm = TRUE)
+  ) |>
+  arrange(county, year)
+
+borough_rent
+```
+The average rent of each borough increased with years. The rent in Manhattan borough remained relatively high. Zip code counts on 2024 were less than the ones on other years.
+
+
+## Plot showing NYC Rental Prices within ZIP codes for all available years
+
+```{r}
+nyc_rent =
+  combined_data |>
+  mutate(
+    file_date = as.Date(file_date),
+    year = year(file_date)
+  ) |>
+  filter(!is.na(county) & !is.na(rent_price)) |>
+  group_by(county, year) |>
+  summarize(
+    avg_rent = mean(rent_price, na.rm = TRUE),
+    n_zip_codes = n_distinct(zip_code)
+  ) |>
+  ggplot(aes(x = year, y = avg_rent, color = county)) +
+  geom_line(size = 1.2, alpha = 0.8) +
+  geom_point(size = 2.5) +
+  geom_smooth(method = "lm", se = FALSE, linetype = "dashed", size = 0.5, alpha = 0.5) +
+  labs(
+    title = "NYC Rental Price Trends by Borough (All Available Years)",
+    subtitle = "Average rent prices across ZIP codes with trend lines",
+    x = "Year",
+    y = "Average Rent ($)",
+    color = "Borough",
+    caption = "Data: Zillow Rental Data | Dashed lines show linear trends"
+  ) +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::dollar) +
+  scale_x_continuous() +
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(face = "bold", size = 14, hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5, color = "gray50"),
+    axis.text.x = element_text(angle = 45, hjust = 1)
   )
 
+print(nyc_rent)
 
-ggplot(zip_freq, aes(x = avg_rent)) +
+```
+The plot reveals that all five boroughs have experienced rental price increases over the eight-year window. The rent prices in Manhattan maintained higher than other areas throughout the entire period, while the ones in Bronx remained the lowest.
+
+The COVID-19 pandemic period (2020-2021) represents a disruption to established trends, with all boroughs experiencing either rental price declines or significant growth deceleration. Manhattan appears to have been most affected.
+
+
+
+## 
+
+Compute the average rental price within each ZIP code over each month in 2023. Make a reader-friendly plot showing the distribution of ZIP-code-level rental prices across boroughs; put differently, your plot should facilitate the comparison of the distribution of average rental prices across boroughs. Comment on this plot.
+
+```{r}
+
+ggplot(zip_f, aes(x = avg_rent)) +
   geom_histogram(binwidth = 500, fill = "steelblue", color = "white") +
   labs(
     title = "Distribution of ZIP Codes by Average Rent",
@@ -207,27 +265,6 @@ ggplot(zip_freq, aes(x = avg_rent)) +
     y = "Number of ZIP Codes"
   ) +
   theme_minimal()
-```
-
-
-Make a plot showing NYC Rental Prices within ZIP codes for all available years. Your plot should facilitate comparisons across boroughs. Comment on any significant elements of this plot.
-
-```{r}
-
-
-
-
-
-
-
-```
-
-
- 
-Compute the average rental price within each ZIP code over each month in 2023. Make a reader-friendly plot showing the distribution of ZIP-code-level rental prices across boroughs; put differently, your plot should facilitate the comparison of the distribution of average rental prices across boroughs. Comment on this plot.
-
-```{r}
-
 
 
 
