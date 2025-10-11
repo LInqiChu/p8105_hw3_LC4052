@@ -96,6 +96,8 @@ instacart |>
 ```
 
 
+
+
 # Problem 2
 
 ## Import and clean data
@@ -310,7 +312,53 @@ ggsave("./results/combined_plot.png",
 
 # Problem 3
 
+## Import and clean the data
+
 ```{r}
+# Tidy each dataset
+nhanes_accel = 
+  read_csv("./accelerometer_data/nhanes_accel.csv",
+             na = c("NA", ".", "")) |>
+  janitor::clean_names() |>
+  pivot_longer(
+    cols = starts_with("min"),
+    names_to = "minute",
+    values_to = "MIMS"
+  ) |>
+  mutate(
+    minute = as.numeric(str_remove(minute, "min")),
+    time_of_day = minute - 1,
+    hour = floor(time_of_day / 60),
+    minute_of_hour = time_of_day %% 60
+  ) |>
+ arrange(seqn, minute)
+
+nhanes_covar = 
+  read_csv("./accelerometer_data/nhanes_covar.csv",
+             na = c("NA", ".", ""),
+            skip = 4) |>
+  janitor::clean_names()
+
+# Combine two datasets
+combined_MIMC <- nhanes_accel |>
+  left_join(nhanes_covar, by = "seqn")
+
+```
+
+
+
+
+
+
+
+
+Produce a reader-friendly table for the number of men and women in each education category, and create a visualization of the age distributions for men and women in each education category. Comment on these items.
+
+```{r}
+# Clean data
+
+
+
 
 
 
@@ -321,11 +369,9 @@ ggsave("./results/combined_plot.png",
 
 ```
 
+Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate across minutes to create a total activity variable for each participant. Plot these total activities (y-axis) against age (x-axis); your plot should compare men to women and have separate panels for each education level. Include a trend line or a smooth to illustrate differences. Comment on your plot.
 
 ```{r}
-
-
-
 
 
 
@@ -336,6 +382,17 @@ ggsave("./results/combined_plot.png",
 
 
 
+
+Accelerometer data allows the inspection activity over the course of the day. Make a three-panel plot that shows the 24-hour activity time courses for each education level and use color to indicate sex. Describe in words any patterns or conclusions you can make based on this graph; including smooth trends may help identify differences
+
+```{r}
+
+
+
+
+
+
+```
 
 
 
