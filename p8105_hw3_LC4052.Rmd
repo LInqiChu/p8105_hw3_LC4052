@@ -247,7 +247,6 @@ The plot reveals that all five boroughs have experienced rental price increases 
 The COVID-19 pandemic period (2020-2021) represents a disruption to established trends, with all boroughs experiencing either rental price declines or significant growth deceleration. Manhattan appears to have been most affected.
 
 
-
 ## Plot showing the distribution of ZIP-code-level rental prices across boroughs
 
 ```{r}
@@ -292,20 +291,18 @@ print(borough_comparison_plot)
 ```
 
 
-
-
-
-
-Combine the two previous plots into a single graphic, and export this to a results folder in your repository
+## Combine the two plots and export it
 
 ```{r}
-nyc_rent + 
+combined_plot = nyc_rent / borough_comparison_plot
+combined_plot
 
 
-
-
-
-
+ggsave("./results/combined_plot.png", 
+       plot = combined_plot,
+       width = 16,
+       height = 8,
+       dpi = 300)
 ```
 
 
