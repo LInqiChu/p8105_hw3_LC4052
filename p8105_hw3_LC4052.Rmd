@@ -10,7 +10,7 @@ library(tidyverse)
 library(ggridges)
 library(patchwork)
 library(dplyr)
-
+library(ggplot2)
 ```
 
 
@@ -229,17 +229,14 @@ nyc_rent =
     subtitle = "Average rent prices across ZIP codes with trend lines",
     x = "Year",
     y = "Average Rent ($)",
-    color = "Borough",
-    caption = "Data: Zillow Rental Data | Dashed lines show linear trends"
+    color = "Borough"
   ) +
   theme_minimal() +
-  scale_y_continuous(labels = scales::dollar) +
   scale_x_continuous() +
   theme(
     legend.position = "bottom",
     plot.title = element_text(face = "bold", size = 14, hjust = 0.5),
-    plot.subtitle = element_text(hjust = 0.5, color = "gray50"),
-    axis.text.x = element_text(angle = 45, hjust = 1)
+    plot.subtitle = element_text(hjust = 0.5)
   )
 
 print(nyc_rent)
@@ -251,27 +248,47 @@ The COVID-19 pandemic period (2020-2021) represents a disruption to established 
 
 
 
-## 
-
-Compute the average rental price within each ZIP code over each month in 2023. Make a reader-friendly plot showing the distribution of ZIP-code-level rental prices across boroughs; put differently, your plot should facilitate the comparison of the distribution of average rental prices across boroughs. Comment on this plot.
+## Plot showing the distribution of ZIP-code-level rental prices across boroughs
 
 ```{r}
+rent_2023 =
+  combined_data |>
+  mutate(
+    file_date = as.Date(file_date),
+    year = lubridate::year(file_date),
+    month = lubridate::month(file_date, label = TRUE)
+  ) |>
+  filter(year == 2023) |>
+  group_by(zip_code, county, month) |>
+  summarize(
+    avg_rent = mean(rent_price, na.rm = TRUE)
+  )
 
-ggplot(zip_f, aes(x = avg_rent)) +
-  geom_histogram(binwidth = 500, fill = "steelblue", color = "white") +
+borough_comparison_plot =
+  rent_2023 |>
+  ggplot(aes(x = county, y = avg_rent, fill = county)) +
+  geom_violin(alpha = 0.7, trim = FALSE) +
+  geom_boxplot(width = 0.2, alpha = 0.8, outlier.shape = NA) +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 3, color = "red") +
   labs(
-    title = "Distribution of ZIP Codes by Average Rent",
-    x = "Average Rent ($)",
-    y = "Number of ZIP Codes"
+    title = "Distribution of Average Rental Prices by Borough (2023)",
+    subtitle = "Violin plots show density distribution, boxplots show quartiles, red diamonds indicate means",
+    x = "Borough",
+    y = "Average Monthly Rent ($)",
+    fill = "Borough"
   ) +
-  theme_minimal()
+  theme_minimal() +
+  scale_y_continuous(labels = scales::dollar) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(face = "bold", size = 14, hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5, color = "gray50", size = 10),
+    axis.text.x = element_text(angle = 0, hjust = 0.5),
+    panel.grid.major.x = element_blank()
+  ) +
+  coord_flip()
 
-
-
-
-
-
-
+print(borough_comparison_plot)
 ```
 
 
@@ -282,7 +299,7 @@ ggplot(zip_f, aes(x = avg_rent)) +
 Combine the two previous plots into a single graphic, and export this to a results folder in your repository
 
 ```{r}
-
+nyc_rent + 
 
 
 
