@@ -368,7 +368,7 @@ education_table =
   combined_MIMS |>
   distinct(seqn, .keep_all = TRUE) |>
   group_by(education, sex) |>
-  summarise(count = n()) |>
+  summarize(count = n()) |>
   pivot_wider(
     names_from = sex,
     values_from = count,
@@ -416,7 +416,7 @@ Younger participants concentrate more in higher education group, with a peak in 
 total_activity =
   combined_MIMS |>
   group_by(seqn, sex, age, bmi, education) |>
-  summarise(
+  summarize(
     total_activity = sum(MIMS, na.rm = TRUE)
   )
 
@@ -451,25 +451,24 @@ activity_age_plot
 Physical activity decreases as participants get older. Female and male trend lines show relatively similar patterns across all educational levels. The "More than high school" group demonstrates the highest baseline activity levels and its decreasing trend is the slightest.
 
 
-## A three-panel plot that shows the 24-hour activity time courses for each education level and use color to indicate sex. Describe in words any patterns or conclusions you can make based on this graph; including smooth trends may help identify differences
+## Plot showing the 24-hour activity time courses for each education level
 
 ```{r}
-
-hourly_activity <- combined_data |>
+hourly_activity =
+  combined_MIMS |>
   group_by(education, sex, hour, minute_of_hour) |>
-  summarise(
-    mean_MIMS = mean(MIMS, na.rm = TRUE),
-    .groups = "drop"
+  summarize(
+    mean_MIMS = mean(MIMS, na.rm = TRUE)
   ) |>
   mutate(
     time_in_hours = hour + minute_of_hour / 60 
   )
 
-
-activity_timecourse_plot <- hourly_activity |>
+activity_timecourse_plot =
+  hourly_activity |>
   ggplot(aes(x = time_in_hours, y = mean_MIMS, color = sex)) +
   geom_line(linewidth = 0.8, alpha = 0.7) +
-  geom_smooth(se = TRUE, linewidth = 1.2) +
+  geom_smooth(se = FALSE, linewidth = 1.2) +
   facet_wrap(~education, ncol = 1) +
   scale_color_manual(values = c("Male" = "#3498db", "Female" = "#e74c3c")) +
   scale_x_continuous(
@@ -487,22 +486,14 @@ activity_timecourse_plot <- hourly_activity |>
     plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
     legend.position = "bottom",
     strip.text = element_text(face = "bold", size = 11),
-    panel.spacing = unit(1, "lines"),
-    panel.grid.minor = element_blank()
+    panel.spacing = unit(0.8, "lines")
   )
 
-print(activity_timecourse_plot)
-
-
-
-
-
-
+activity_timecourse_plot
 ```
+All three education groups exhibit clear circadian rhythms with similar structures. Activity levels are minimal during nighttime hours. The levels begins to increase sharply around 6:00-9:00 AM, corresponding to wake time and morning routines. Peak activity occurs during midday hours, with sustained high levels throughout the afternoon. Activity gradually declines after 8:00 PM.
 
+Across all education levels, females show higher average activity levels than males throughout most of the waking hours.
 
-
-
-
-
+The "Less than high school" group shows the highest peak activity levels during midday, which may due to more physically demanding jobs. The "High school equivalent" group shows moderate peak activity (approximately 12-14 MIMS), while the "More than high school" group demonstrates slightly lower peak levels (approximately 12-13 MIMS), possibly reflecting more sedentary white-collar occupations. However, the higher education group maintains more consistent activity levels throughout the day, suggesting patterns that may include structured exercise rather than occupation-driven activity.
 
