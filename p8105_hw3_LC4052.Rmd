@@ -180,22 +180,25 @@ ggplot(zip_freq, aes(x = n_months)) +
     y = "Count of ZIP Codes"
   )
 ```
-There are some reasons why some ZIP codes are observed rarely and others observed in each month:
 
-
+High-frequency ZIP codes might benefit from dense populations that generate continuous rental market activity throughout the data collection period. They may be also due to better technological coverage and more reliable reporting mechanisms.
 
 
 ## Table showing the average rental price in each borough and year (not month). Comment on trends in this table.
 
-```{r}
-
-
-
-
-
-```
 
 ```{r}
+zip_freq =
+  combined_data |>
+  mutate(file_date = as.Date(file_date)) |>
+  group_by(zip_code) |>
+  summarize(
+    n_months = n_distinct(format(file_date, "%Y-%m")),
+    zip_count = n()
+    avg_rent = mean(rent_price)
+  )
+
+
 ggplot(zip_freq, aes(x = avg_rent)) +
   geom_histogram(binwidth = 500, fill = "steelblue", color = "white") +
   labs(
@@ -225,6 +228,13 @@ Compute the average rental price within each ZIP code over each month in 2023. M
 
 ```{r}
 
+
+
+
+
+
+
+
 ```
 
 
@@ -236,6 +246,12 @@ Combine the two previous plots into a single graphic, and export this to a resul
 
 ```{r}
 
+
+
+
+
+
+
 ```
 
 
@@ -245,10 +261,25 @@ Combine the two previous plots into a single graphic, and export this to a resul
 
 ```{r}
 
+
+
+
+
+
+
+
 ```
 
 
 ```{r}
+
+
+
+
+
+
+
+
 
 ```
 
