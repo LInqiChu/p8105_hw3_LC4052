@@ -340,32 +340,105 @@ nhanes_covar =
   janitor::clean_names()
 
 # Combine two datasets
-combined_MIMC <- nhanes_accel |>
-  left_join(nhanes_covar, by = "seqn")
+combined_MIMC = nhanes_accel |>
+  left_join(nhanes_covar, by = "seqn") |>
+  filter(age >= 21) |>
+  filter(!is.na(sex), !is.na(age), !is.na(bmi), !is.na(education)) |>
+  mutate(
+    sex = factor(sex, 
+                 levels = c(1, 2), 
+                 labels = c("Male", "Female")),
+    education = factor(education, 
+                      levels = c(1, 2, 3), 
+                      labels = c("Less than high school", 
+                                "High school equivalent", 
+                                "More than high school"),
+                      ordered = TRUE),
+    age = as.numeric(age),
+    bmi = as.numeric(bmi),
+    
+    # 参与者ID转换为因子
+    seqn = as.factor(seqn)
+  )
 
 ```
 
+```{r}
+education_table <- combined_data |>
+  distinct(seqn, .keep_all = TRUE) |>  # 每个参与者只保留一行
+  group_by(education, sex) |>
+  summarise(count = n(), .groups = "drop") |>
+  pivot_wider(
+    names_from = sex,
+    values_from = count,
+    values_fill = 0
+  ) |>
+  mutate(Total = Male + Female) |>
+  arrange(education)
+
+age_distribution_plot <- combined_data |>
+  distinct(seqn, .keep_all = TRUE) |>  # 每个参与者只保留一行
+  ggplot(aes(x = age, fill = sex)) +
+  geom_histogram(position = "dodge", bins = 20, alpha = 0.7) +
+  facet_wrap(~education, ncol = 1) +
+  scale_fill_manual(values = c("Male" = "#3498db", "Female" = "#e74c3c")) +
+  labs(
+    title = "Age Distribution by Sex and Education Level",
+    x = "Age (years)",
+    y = "Count",
+    fill = "Sex"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    legend.position = "bottom",
+    strip.text = element_text(face = "bold")
+  )
 
 
 
-
-
-
-
+```
 Produce a reader-friendly table for the number of men and women in each education category, and create a visualization of the age distributions for men and women in each education category. Comment on these items.
 
+
+
+
+
+
+
 ```{r}
-# Clean data
+total_activity <- combined_data |>
+  group_by(seqn, sex, age, bmi, education) |>
+  summarise(
+    total_activity = sum(MIMS, na.rm = TRUE),
+    .groups = "drop"
+  )
 
+# 查看总活动量的摘要统计
+summary(total_activity$total_activity)
 
+# 2. 创建总活动量 vs 年龄的可视化
+activity_age_plot <- total_activity |>
+  ggplot(aes(x = age, y = total_activity, color = sex)) +
+  geom_point(alpha = 0.6, size = 2) +
+  geom_smooth(method = "loess", se = TRUE, linewidth = 1) +
+  facet_wrap(~education, ncol = 1) +
+  scale_color_manual(values = c("Male" = "#3498db", "Female" = "#e74c3c")) +
+  labs(
+    title = "Total Daily Activity by Age, Sex, and Education Level",
+    x = "Age (years)",
+    y = "Total Activity (MIMS)",
+    color = "Sex"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    legend.position = "bottom",
+    strip.text = element_text(face = "bold", size = 11),
+    panel.spacing = unit(1, "lines")
+  )
 
-
-
-
-
-
-
-
+print(activity_age_plot)
 
 ```
 
@@ -386,6 +459,44 @@ Traditional analyses of accelerometer data focus on the total activity over the 
 Accelerometer data allows the inspection activity over the course of the day. Make a three-panel plot that shows the 24-hour activity time courses for each education level and use color to indicate sex. Describe in words any patterns or conclusions you can make based on this graph; including smooth trends may help identify differences
 
 ```{r}
+# 1. 计算每个教育水平、性别和时间点的平均活动量
+hourly_activity <- combined_data |>
+  group_by(education, sex, hour, minute_of_hour) |>
+  summarise(
+    mean_MIMS = mean(MIMS, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  mutate(
+    time_in_hours = hour + minute_of_hour / 60  # 将时间转换为小时的小数形式
+  )
+
+# 2. 创建24小时活动时间过程图
+activity_timecourse_plot <- hourly_activity |>
+  ggplot(aes(x = time_in_hours, y = mean_MIMS, color = sex)) +
+  geom_line(linewidth = 0.8, alpha = 0.7) +
+  geom_smooth(se = TRUE, linewidth = 1.2) +
+  facet_wrap(~education, ncol = 1) +
+  scale_color_manual(values = c("Male" = "#3498db", "Female" = "#e74c3c")) +
+  scale_x_continuous(
+    breaks = seq(0, 24, 4),
+    labels = c("0:00", "4:00", "8:00", "12:00", "16:00", "20:00", "24:00")
+  ) +
+  labs(
+    title = "24-Hour Activity Time Course by Education Level and Sex",
+    x = "Time of Day",
+    y = "Average Activity (MIMS)",
+    color = "Sex"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    legend.position = "bottom",
+    strip.text = element_text(face = "bold", size = 11),
+    panel.spacing = unit(1, "lines"),
+    panel.grid.minor = element_blank()
+  )
+
+print(activity_timecourse_plot)
 
 
 
