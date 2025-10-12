@@ -39,7 +39,7 @@ instacart |>
   pull(aisle)
 
 ```
-There are `r n_distinct(instacart$aisle` aisles. "fresh vegetables" are the most items ordered from.
+There are `r n_distinct(instacart$aisle)` aisles. "fresh vegetables" are the most items ordered from.
 
 ## Plot of the number of items ordered in each aisle
 
